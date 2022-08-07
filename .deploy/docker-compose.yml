@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+    dysn_gateway:
+      build:
+        context: .
+        dockerfile: dockerfile
+      env_file:
+        - .env
+      ports:
+        - "8080:8080"
+      volumes:
+        - dysn_gateway:/var/www/html/dysn/gateway
+
+volumes:
+  dysn_gateway:
+

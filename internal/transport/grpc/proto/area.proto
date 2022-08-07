@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+option go_package = "/grpc/pb/area;pb";
+
+package area;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+service Area {
+  rpc Ping(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc List(ListRequest) returns (AreaList) {}
+  rpc Show(Identity) returns (AreaFull) {}
+  rpc CreateArea(CreateAreaRequest) returns (AreaFull) {}
+  rpc UpdateArea(UpdateAreaRequest) returns (google.protobuf.Empty) {}
+  rpc DeleteArea(Identity) returns (google.protobuf.Empty) {}
+}
+
+message ListRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message CreateAreaRequest {
+  string name = 1;
+  string description = 2;
+}
+
+message UpdateAreaRequest {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  bool   isActive = 4;
+}
+
+message Identity {
+  string id = 1;
+}
+
+message AreaList {
+  repeated AreaFull List = 1;
+}
+
+message AreaFull {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string image = 4;
+  bool   isActive = 5;
+  google.protobuf.Timestamp createdAt = 6;
+  google.protobuf.Timestamp updatedAt = 7;
+}
