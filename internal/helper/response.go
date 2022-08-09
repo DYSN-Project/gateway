@@ -36,3 +36,11 @@ func InternalServerResponse(c *gin.Context, err error) {
 			"error": "Internal server error",
 		})
 }
+
+func UnauthorizedResponse(c *gin.Context) {
+	c.JSON(http.StatusUnauthorized,
+		gin.H{
+			"data":  nil,
+			"error": "Unauthorized response",
+		})
+}
