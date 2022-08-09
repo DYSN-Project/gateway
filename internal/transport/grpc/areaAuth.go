@@ -57,3 +57,43 @@ func (a *Auth) ConfirmRegister(token string) (*response.User, error) {
 
 	return user, nil
 }
+
+func (a *Auth) Login(email, password string) (*response.Tokens, error) {
+	rqt := &pb.LoginRequest{
+		Email:    email,
+		Password: password,
+	}
+
+	tokens, err := a.client.Login(context.Background(), rqt)
+	if err != nil {
+		return nil, err
+	}
+
+	return response.NewTokens(tokens.GetAccessToken(), tokens.GetRefreshToken()), nil
+}
+
+func (a *Auth) RefreshTokens(token string) (*response.Tokens, error) {
+	rqt := &pb.Token{
+		Token: token,
+	}
+
+	tokens, err := a.client.RefreshTokens(context.Background(), rqt)
+	if err != nil {
+		return nil, err
+	}
+
+	return response.NewTokens(tokens.GetAccessToken(), tokens.GetRefreshToken()), nil
+}
+
+func (a *Auth) VerifyTokenAndGetId(token string) (string, error) {
+	rqt := &pb.Token{
+		Token: token,
+	}
+
+	userId, err := a.client.VerifyTokenAndGetId(context.Background(), rqt)
+	if err != nil {
+		return "", err
+	}
+
+	return userId.GetUserId(), nil
+}

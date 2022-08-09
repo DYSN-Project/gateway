@@ -11,6 +11,9 @@ func RegisterAuthEndpoints(router *gin.Engine, grpcClient *grpc.Auth, logger *lo
 	controller := v1.NewAuthController(grpcClient, logger)
 
 	grp := router.Group("api/v1/auth")
+
 	grp.POST("/register", controller.ConfirmRegister)
 	grp.GET("/confirm/:token", controller.ConfirmRegister)
+	grp.POST("/login", controller.Login)
+	grp.POST("/refresh-tokens", controller.RefreshTokens)
 }

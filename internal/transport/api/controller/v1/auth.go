@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"errors"
 	"github.com/DYSN-Project/gateway/internal/helper"
 	"github.com/DYSN-Project/gateway/internal/model/form"
 	"github.com/DYSN-Project/gateway/internal/transport/grpc"
@@ -44,18 +45,50 @@ func (a *AuthController) Register(c *gin.Context) {
 }
 
 func (a *AuthController) ConfirmRegister(c *gin.Context) {
+	token := c.Param("token")
 
-	rqt := c.Param("token")
+	user, err := a.grpcClient.ConfirmRegister(token)
+	if err != nil {
+		helper.ErrorResponse(c, err)
+
+		return
+	}
+
+	helper.SuccessResponse(c, user)
+}
+
+func (a *AuthController) Login(c *gin.Context) {
+	rqt := &form.LoginForm{}
 	if err := c.BindJSON(rqt); err != nil {
 		helper.BadRequestResponse(c, err)
 
 		return
 	}
 
-	token, err := a.grpcClient.Register(rqt.GetTok)
+	tokens, err := a.grpcClient.Login(rqt.Email, rqt.Password)
 	if err != nil {
 		helper.ErrorResponse(c, err)
+
+		return
 	}
 
-	helper.SuccessResponse(c, token)
+	helper.SuccessResponse(c, tokens)
+}
+
+func (a *AuthController) RefreshTokens(c *gin.Context) {
+	token := c.Param("token")
+	if len(token) == 0 {
+		helper.BadRequestResponse(c, errors.New("todo"))
+
+		return
+	}
+
+	tokens, err := a.grpcClient.RefreshTokens(token)
+	if err != nil {
+		helper.ErrorResponse(c, err)
+
+		return
+	}
+
+	helper.SuccessResponse(c, tokens)
 }
