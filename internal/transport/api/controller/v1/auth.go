@@ -1,64 +1,73 @@
 package v1
 
 import (
-	"errors"
 	"github.com/DYSN-Project/gateway/internal/helper"
 	"github.com/DYSN-Project/gateway/internal/model/form"
 	"github.com/DYSN-Project/gateway/internal/transport/grpc"
-	"github.com/DYSN-Project/gateway/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthInterface interface {
-	Register(c gin.Context)
-	ConfirmRegister(c gin.Context)
-	Login(c gin.Context)
-	RefreshTokens(c gin.Context)
+	Register(c *gin.Context)
+	ConfirmRegister(c *gin.Context)
+	Login(c *gin.Context)
+	RefreshTokens(c *gin.Context)
+	RecoveryPassword(c *gin.Context)
+	RecoveryPasswordConfirm(c *gin.Context)
+	ChangePassword(c *gin.Context)
 }
 
 type AuthController struct {
 	grpcClient *grpc.Auth
-	logger     *logger.Logger
 }
 
-func NewAuthController(grpcClient *grpc.Auth, logger *logger.Logger) *AuthController {
+func NewAuthController(grpcClient *grpc.Auth) *AuthController {
 	return &AuthController{
 		grpcClient: grpcClient,
-		logger:     logger,
 	}
 }
 
 func (a *AuthController) Register(c *gin.Context) {
-	rqt := &form.RegisterForm{}
+	rqt := &form.Register{}
 	if err := c.BindJSON(rqt); err != nil {
 		helper.BadRequestResponse(c, err)
 
 		return
 	}
 
-	token, err := a.grpcClient.Register(rqt.Email, rqt.Password)
+	user, err := a.grpcClient.Register(rqt.Email,
+		rqt.Password,
+		rqt.Lang)
+
 	if err != nil {
 		helper.ErrorResponse(c, err)
 	}
 
-	helper.SuccessResponse(c, token)
+	helper.SuccessResponse(c, user)
 }
 
 func (a *AuthController) ConfirmRegister(c *gin.Context) {
-	token := c.Param("token")
+	rqt := &form.ConfirmRegister{}
+	if err := c.BindJSON(rqt); err != nil {
+		helper.BadRequestResponse(c, err)
 
-	user, err := a.grpcClient.ConfirmRegister(token)
+		return
+	}
+
+	tokens, err := a.grpcClient.ConfirmRegister(rqt.Email,
+		rqt.Password,
+		rqt.Code)
 	if err != nil {
 		helper.ErrorResponse(c, err)
 
 		return
 	}
 
-	helper.SuccessResponse(c, user)
+	helper.SuccessResponse(c, tokens)
 }
 
 func (a *AuthController) Login(c *gin.Context) {
-	rqt := &form.LoginForm{}
+	rqt := &form.Login{}
 	if err := c.BindJSON(rqt); err != nil {
 		helper.BadRequestResponse(c, err)
 
@@ -76,14 +85,14 @@ func (a *AuthController) Login(c *gin.Context) {
 }
 
 func (a *AuthController) RefreshTokens(c *gin.Context) {
-	token := c.Param("token")
-	if len(token) == 0 {
-		helper.BadRequestResponse(c, errors.New("todo"))
+	rqt := &form.Token{}
+	if err := c.BindJSON(rqt); err != nil {
+		helper.BadRequestResponse(c, err)
 
 		return
 	}
 
-	tokens, err := a.grpcClient.RefreshTokens(token)
+	tokens, err := a.grpcClient.UpdateTokens(rqt.Token)
 	if err != nil {
 		helper.ErrorResponse(c, err)
 
@@ -91,4 +100,55 @@ func (a *AuthController) RefreshTokens(c *gin.Context) {
 	}
 
 	helper.SuccessResponse(c, tokens)
+}
+
+func (a *AuthController) RecoveryPassword(c *gin.Context) {
+	rqt := &form.RecoveryPasswordRqt{}
+	if err := c.BindJSON(rqt); err != nil {
+		helper.BadRequestResponse(c, err)
+
+		return
+	}
+
+	if err := a.grpcClient.RecoveryPassword(rqt.Email); err != nil {
+		helper.ErrorResponse(c, err)
+
+		return
+	}
+
+	helper.SuccessResponse(c, "success remove request.Check your email")
+}
+
+func (a *AuthController) RecoveryPasswordConfirm(c *gin.Context) {
+	rqt := &form.RecoveryPasswordConfirm{}
+	if err := c.BindJSON(rqt); err != nil {
+		helper.BadRequestResponse(c, err)
+
+		return
+	}
+
+	if err := a.grpcClient.RecoveryPasswordConfirm(rqt.Email, rqt.Code); err != nil {
+		helper.ErrorResponse(c, err)
+
+		return
+	}
+
+	helper.SuccessResponse(c, "recovery password confirmed")
+}
+
+func (a *AuthController) ChangePassword(c *gin.Context) {
+	rqt := &form.ChangePassword{}
+	if err := c.BindJSON(rqt); err != nil {
+		helper.BadRequestResponse(c, err)
+
+		return
+	}
+
+	if err := a.grpcClient.ChangePassword(rqt.Email, rqt.Password); err != nil {
+		helper.ErrorResponse(c, err)
+
+		return
+	}
+
+	helper.SuccessResponse(c, "password changed")
 }

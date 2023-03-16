@@ -6,10 +6,11 @@ import (
 )
 
 func FromAreaPbToAreaModel(areaPb *pb.AreaFull, areaEnt *response.Area) {
-	areaEnt.Id = areaPb.GetId()
+	areaEnt.ID = areaPb.GetId()
 	areaEnt.Name = areaPb.GetName()
 	areaEnt.Description = areaPb.GetDescription()
-	areaEnt.IsActive = areaPb.GetIsActive()
+	areaEnt.Image = areaPb.GetImage()
+	areaEnt.Status = areaPb.GetStatus()
 	areaEnt.CreatedAt = areaPb.GetCreatedAt().AsTime()
 	areaEnt.UpdatedAt = areaPb.GetUpdatedAt().AsTime()
 }

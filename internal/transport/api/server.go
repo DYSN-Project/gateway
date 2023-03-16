@@ -21,8 +21,8 @@ type RestServerInterface interface {
 }
 
 func NewServer(port string,
-	areaGrpc *grpc.Area,
-	authGrpc *grpc.Auth,
+	areaGrpcClient *grpc.Area,
+	authGrpcClient *grpc.Auth,
 	logger *logger.Logger,
 ) *Server {
 	router := gin.Default()
@@ -30,7 +30,8 @@ func NewServer(port string,
 		helper.SuccessResponse(c, "pong")
 	})
 
-	v1.RegisterAreaEndpoints(router, areaGrpc, logger)
+	v1.RegisterAuthEndpoints(router, authGrpcClient)
+	v1.RegisterAreaEndpoints(router, areaGrpcClient)
 
 	srv := &http.Server{
 		Addr:     port,

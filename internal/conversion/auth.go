@@ -8,7 +8,6 @@ import (
 func FromUserPbToUserModel(userPb *pb.User, userEnt *response.User) {
 	userEnt.ID = userPb.Id
 	userEnt.Email = userPb.Email
-	userEnt.Status = int(userPb.Status)
 	userEnt.CreatedAt = userPb.CreatedAt.AsTime()
 	userEnt.UpdatedAt = userPb.UpdatedAt.AsTime()
 }

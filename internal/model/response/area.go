@@ -1,10 +1,11 @@
 package response
 
 type Area struct {
-	Id          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	IsActive    bool   `json:"isActive"`
+	ID          string `bson:"id"`
+	Name        string `bson:"name"`
+	Description string `bson:"description"`
+	Image       string `bson:"image"`
+	Status      string `bson:"status"`
 	Date
 }
 

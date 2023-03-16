@@ -1,10 +1,16 @@
 package form
 
-type AreaList struct {
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
+type CreateArea struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Image       string `json:"image"`
+	Status      string `json:"status"`
 }
 
-type AreaShow struct {
-	Id string `json:"id"`
+type UpdateArea struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Image       string `json:"image"`
+	Status      string `json:"status"`
 }
