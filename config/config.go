@@ -5,12 +5,12 @@ import (
 	"os"
 )
 
-const EnvName = ".env"
+const envName = ".deploy/.env"
 
 type Config struct{}
 
 func NewConfig() *Config {
-	if err := godotenv.Load(EnvName); err != nil {
+	if err := godotenv.Load(envName); err != nil {
 		panic(err)
 	}
 	return &Config{}
